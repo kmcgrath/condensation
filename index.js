@@ -169,6 +169,24 @@ Condensation.prototype.condense = function() {
     }));
   });
 
+
+  // For any directory within an 'assets' directory that
+  // ends in _pkg create a gziped tar of its contents
+
+  /*
+   *gulp.task(self.genTaskName(+"assets:package",function(cb) {
+   *  //The returns here may not be right
+   *  return gulp.src("**/assets/*_pkg",{cwd:"src"}).on("data",function(dir){
+   *     if (dir.stat.isDirectory()) {
+   *       return gulp.src(dir.path+"/*")
+   *       .pipe(tar(dir.relative+".tar"))
+   *       .pipe(gzip())
+   *       .pipe(gulp.dest('./dist/shared'));
+   *     }
+   *   });
+   * });
+   */
+
   gulp.task(self.genTaskName('s3','list'), function(cb) {
     _.each(s3config, function(s3opts,i) {
       gutil.log(i + ": " + s3opts.aws.bucket);
