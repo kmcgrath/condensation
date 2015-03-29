@@ -1,0 +1,15 @@
+{{{requireAssets 'module:projectB' '*'}}}
+{
+  "Description": "{{{helper 'module:projectB' 'hello-b'}}}",
+  "Mappings": {
+    "myAMImap": {{{partial 'module:projectB' 'ami_map.partial'}}}
+  },
+  "Resources": {
+    "ProjectBStack": {
+       "Type" : "AWS::CloudFormation::Stack",
+       "Properties" : {
+          "TemplateURL" : "{{{templateS3Url 'module:projectB' 'instance.template'}}}"
+       }
+    }
+  }
+}

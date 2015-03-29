@@ -1,0 +1,45 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "{{{helper 'test-helper'}}}",
+    {{{partial 'parameter-name-tag'}}}
+  },
+  "Resources": {
+    "Subnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "CidrBlock": {
+          "Ref": "SubnetCidr"
+        },
+        "AvailabilityZone": {
+          "Fn::If": [
+            "condNonDefaultAZ",
+            {
+              "Ref": "AvailabilityZone"
+            },
+            {
+              "Ref": "AWS::NoValue"
+            }
+          ]
+        },
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Ref": "NameTag"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "VpcId": {
+      "Value": {
+        "Ref": "vpc"
+      }
+    }
+  }
+}

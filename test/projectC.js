@@ -5,27 +5,14 @@ assert = require('assert'),
 path = require('path'),
 fs = require('fs');
 
-
-var tasks = [
-  'build',
-  'build:0',
-  'clean',
-  'default',
-  'deploy',
-  'deploy:0',
-  's3:bucket:ensure:0',
-  's3:list',
-  's3:objects:write:0'
-];
-
 var distributionFiles = [
-  'particles/cftemplates/vpc.template',
-  'particles/cftemplates/subnet.template',
-  'particles/cftemplates/infra.template'
+  'particles/cftemplates/proj.template',
+  'node_modules/projectB/particles/assets/bootstrap.sh',
+  'node_modules/projectB/particles/assets/download.sh',
+  'node_modules/projectB/node_modules/projectA/particles/cftemplates/vpc.template'
 ];
 
-
-describe('projectA', function(){
+describe('projectC', function(){
   var gulp;
 
   beforeEach(function() {
@@ -37,35 +24,34 @@ describe('projectA', function(){
           {
             aws: {
               region: 'us-east-1',
-              bucket: '',
+              bucket: 'my-test-bucket',
             },
+            labels: ['east'],
             validate: false,
             create: false
           }
         ],
-        projectName: 'projectA',
-        root: 'test/projectA',
+        projectName: 'projectC',
+        root: 'test/projectC',
         taskPrefix: '',
-        dist: 'test/dist/pA',
+        dist: 'test/dist/pC',
+        dependencySrc: [
+          'test/projectC/fake_bower_components'
+        ],
       }
     );
   });
 
-  tasks.forEach(function(task) {
-    it('should have a task named \''+task+'\'', function(done){
-      assert(_.indexOf(_.keys(gulp.tasks),task)>=0);
-      done();
-    });
-  });
-
   it('should build the project', function(done){
     gulp.start('build');
+    gulp.on('err',assert.fail);
     gulp.on('stop',function(){
       async.each(
         distributionFiles,
         function(file,cb) {
-          fs.lstat(path.join('test/dist/pA/0',file), function(err, stats) {
-            cb(err);
+          fs.lstat(path.join('test/dist/pC/0',file), function(err,stat) {
+            assert(!err);
+            cb();
           });
         },
         done
@@ -76,7 +62,7 @@ describe('projectA', function(){
   it('should clean the project', function(done){
     gulp.start('clean');
     gulp.on('stop',function(){
-      fs.lstat('test/dist/pA', function(err, stats) {
+      fs.lstat('test/dist/pC', function(err, stats) {
         assert(err);
         done();
       });

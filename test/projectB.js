@@ -1,21 +1,29 @@
 var _ = require('lodash'),
+async = require('async'),
 clone = require('clone'),
 assert = require('assert'),
+path = require('path'),
 fs = require('fs');
 
 var tasks = [
-  'assets:compile:0',
   'build',
   'build:0',
+  'build:east',
   'clean',
   'default',
   'deploy',
   'deploy:0',
-  'partials:load',
+  'deploy:east',
   's3:bucket:ensure:0',
   's3:list',
-  's3:objects:write:0',
-  'templates:compile:0'
+  's3:objects:write:0'
+];
+
+var distributionFiles = [
+  'particles/cftemplates/instance.template',
+  'particles/assets/bootstrap.sh',
+  'particles/assets/download.sh',
+  'node_modules/projectA/particles/cftemplates/vpc.template'
 ];
 
 describe('projectB', function(){
@@ -32,6 +40,7 @@ describe('projectB', function(){
               region: 'us-east-1',
               bucket: '',
             },
+            labels: ['east'],
             validate: false,
             create: false
           }
@@ -39,35 +48,32 @@ describe('projectB', function(){
         projectName: 'projectB',
         root: 'test/projectB',
         taskPrefix: '',
-        dist: 'test/dist/pB',
-        dependencySrc: [
-          'test/projectB/fake_bower_components'
-        ]
+        dist: 'test/dist/pB'
       }
     );
   });
 
   tasks.forEach(function(task) {
     it('should have a task named \''+task+'\'', function(done){
-      assert(_.findIndex(_.keys(gulp.tasks),task));
+      assert(_.indexOf(_.keys(gulp.tasks),task)>=0);
       done();
     });
   });
 
   it('should build the project', function(done){
     gulp.start('build');
-    gulp.on('stop',function(){done();});
-  });
-
-  it('should build projectA as a dependency', function(done){
-    // Is it a directory?
-    fs.lstat('test/dist/pB/0/projectA', function(err, stats) {
-      if (!err && stats.isDirectory()) {
-        done();
-      }
-      else {
-        done(err);
-      }
+    gulp.on('err',assert.fail);
+    gulp.on('stop',function(){
+      async.each(
+        distributionFiles,
+        function(file,cb) {
+          fs.lstat(path.join('test/dist/pB/0',file), function(err,stat) {
+            assert(!err);
+            cb();
+          });
+        },
+        done
+      );
     });
   });
 
@@ -75,12 +81,8 @@ describe('projectB', function(){
     gulp.start('clean');
     gulp.on('stop',function(){
       fs.lstat('test/dist/pB', function(err, stats) {
-        if (!err && stats.isDirectory()) {
-          done("Clean Failed. Directory exists");
-        }
-        else {
-          done();
-        }
+        assert(err);
+        done();
       });
     });
   });

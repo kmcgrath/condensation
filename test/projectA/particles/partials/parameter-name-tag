@@ -1,0 +1,4 @@
+ "NameTag": {
+   "Description": "Will set the name tag on all resources created",
+   "Type": "String"
+}

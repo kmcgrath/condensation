@@ -1,4 +1,4 @@
-node_modules
+node_modules/
 npm*
 test/projectA/npm*
-test/dist
+test/dist/
